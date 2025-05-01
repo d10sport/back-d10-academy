@@ -5,14 +5,14 @@ import { AuthorizationVerify } from '../middlewares/authorization.js';
 import { ConexionVerify } from '../middlewares/connection.js';
 
 // Admin Landing
-import { updateAdminAboutUsConocenos, updateAdminAboutUsFundador, updateAdminAboutUsObjetivos, updateAdminAboutUsMision, updateAdminAboutUsVision } from '../controllers/admin/admin-aboutus.controller.js';
+import { updateAdminAboutUsConocenos, updateAdminAboutUsFundador, updateAdminAboutUsObjetivos, updateAdminAboutUsMision, updateAdminAboutUsVision, getDataAboutUs } from '../controllers/admin/admin-aboutus.controller.js';
 import { getUsersFromClub, getAllUsers, getAllRegistersVerifiedByDate, getAllCountUsersWithAdmin, getAllCountUsersWithoutAdmin } from '../controllers/academy/graphics.controller.js'
-import { updateAdminHome, updateAdminNosotros, updateAdminComercial, updateAdminNews, updateAdminAcademia, updateAdminAliados } from '../controllers/admin/admin-home.controller.js'
-import { updateAdminServicesOne, updateAdminServicesTwo, updateAdminServicesThree } from '../controllers/admin/admin-services.controller.js'
+import { updateAdminHome, updateAdminNosotros, updateAdminComercial, updateAdminNews, updateAdminAcademia, updateAdminAliados, getDataHome } from '../controllers/admin/admin-home.controller.js'
+import { updateAdminServicesOne, updateAdminServicesTwo, updateAdminServicesThree, getDataServices } from '../controllers/admin/admin-services.controller.js'
 import { getAdminCourseAcademy, saveAdminCourse, deleteAdminCourse } from '../controllers/admin/admin-course.controller.js';
 import { getAdminClass, saveAdminClass, deleteAdminClass } from '../controllers/admin/admin-class.controller.js';
-import { saveGalleryImage, deleteGalleryImage } from '../controllers/admin/admin-gallery.controller.js';
-import { saveNews, deleteNews } from '../controllers/admin/admin-news.controller.js';
+import { saveGalleryImage, deleteGalleryImage, getDataGallery } from '../controllers/admin/admin-gallery.controller.js';
+import { saveNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
 import { getAdminAcademy } from '../controllers/admin/admin.controller.js';
 
 // Academy
@@ -70,6 +70,12 @@ export const routes = () => {
     router.put('/landing/d/delete-gallery/:id', AuthorizationVerify, deleteGalleryImage)
     router.put('/landing/i/save-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveNews)
     router.put('/landing/d/delete-news-admin/:id', AuthorizationVerify, deleteNews)
+
+    router.get('/landing/g/aboutus', AuthorizationVerify, getDataAboutUs);
+    router.get('/landing/g/gallery', AuthorizationVerify, getDataGallery)
+    router.get('/landing/g/home', AuthorizationVerify, getDataHome);
+    router.get('/landing/g/news', AuthorizationVerify, getDataNews);
+    router.get('/landing/g/services', AuthorizationVerify, getDataServices);
 
     // Admin Academy
     router.get('/academy/g/admin-course', AuthorizationVerify, getAdminCourseAcademy);

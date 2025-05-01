@@ -8,7 +8,7 @@ export const saveGalleryImage = async (req, res) => {
     try {
         const { id } = req.params;
         const file = req.file;
-        const linkFile = await uploadFileS3Function({ page: req.body.page, ...file});
+        const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
         if (linkFile.error) {
             return res.json(responseQueries.error({ message: linkFile.error }));
         }
@@ -75,3 +75,18 @@ export const deleteGalleryImage = async (req, res) => {
         return res.json(responseQueries.error({ message: "Error interno del servidor" }));
     }
 };
+
+// Obtener datos de galería
+export const getDataGallery = async (req, res) => {
+    const conn = await getConnection();
+    const db = variablesDB.landing;
+    const query = `
+      SELECT id, section_one
+      FROM ${db}.parametersGallery`;
+    const select = await conn.query(query);
+    if (!select) return res.json({
+        status: 500,
+        message: 'Error obteniendo los datos'
+    });
+    return res.json(select[0]);
+}

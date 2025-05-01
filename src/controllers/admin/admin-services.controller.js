@@ -146,3 +146,18 @@ export const updateAdminServicesThree = async (req, res) => {
         return res.json(responseQueries.error({ message: "Error al actualizar los datos", error }));
     }
 };
+
+// Obtener datos de servicios
+export const getDataServices = async (req, res) => {
+    const conn = await getConnection();
+    const db = variablesDB.landing;
+    const query = `
+      SELECT id, section_one, section_two, section_three, section_four
+      FROM ${db}.parametersServices`;
+    const select = await conn.query(query);
+    if (!select) return res.json({
+        status: 500,
+        message: 'Error obteniendo los datos'
+    });
+    return res.json(select[0]);
+}

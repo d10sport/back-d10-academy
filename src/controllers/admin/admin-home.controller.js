@@ -1,4 +1,5 @@
 import getConnection from "../../database/connection.mysql.js";
+import { generateToken } from "../../utils/token/handle-token.js";
 import { variablesDB } from "../../utils/params/const.database.js";
 import { responseQueries } from "../../common/enum/queries/response.queries.js";
 import { deleteFileS3Function, uploadFileS3Function } from "../../lib/s3/s3.js";
@@ -271,4 +272,23 @@ export const updateAdminAliados = async (req, res) => {
     } catch (error) {
         return res.json(responseQueries.error({ message: "Error al actualizar los datos", error }));
     }
+};
+
+// Obtener datos de Inicio
+export const getDataHome = async (req, res) => {
+    const conn = await getConnection();
+    const db = variablesDB.landing;
+    const query = `
+      SELECT id, section_one, section_two, section_three, section_four, section_five, section_six
+      FROM ${db}.parametersHome`;
+
+    const select = await conn.query(query);
+
+    if (!select || select.length === 0) {
+        return res.json(responseQueries.error({ message: "Error obteniendo los datos" }));
+    }
+
+    const encryptedData = await generateToken({ sub: select[0][0].id, data: select[0] });
+
+    return res.json(responseQueries.success({ data: encryptedData }));
 };
