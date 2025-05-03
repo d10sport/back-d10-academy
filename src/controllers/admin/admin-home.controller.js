@@ -7,43 +7,50 @@ import { deleteFileS3Function, uploadFileS3Function } from "../../lib/s3/s3.js";
 // Actualizar sección de Inicio
 export const updateAdminHome = async (req, res) => {
     const { id } = req.params;
-    const file = req.files;
+    const files = req.files || [];
     const data = JSON.parse(req.body.data);
-    const { slogan, company, bg_photo, slogan_two, bg_photo_res, slogan_three } = data;
+    let { slogan, company, bg_photo, slogan_two, bg_photo_res, slogan_three } = data;
 
-    const deleteFiles3BgPhoto = await deleteFileS3Function(bg_photo);
-    if (deleteFiles3BgPhoto.error) {
-        return res.json(responseQueries.error({
-            message: deleteFiles3BgPhoto.message
-        }));
-    }
+    let bgPhotoFile = null;
+    let bgPhotoResFile = null;
 
-    const deleteFiles3BgPhotoRes = await deleteFileS3Function(bg_photo_res);
-    if (deleteFiles3BgPhotoRes.error) {
-        return res.json(responseQueries.error({
-            message: deleteFiles3BgPhotoRes.message
-        }));
-    }
+    const fileTypes = req.body.fileType;
+    const fileArray = Array.isArray(fileTypes) ? fileTypes : [fileTypes];
 
-    const linkFileBgPhoto = await uploadFileS3Function({
-        page: req.body.page, ...file
+    fileArray.forEach((type, index) => {
+        if (type === 'bg_photo') {
+            bgPhotoFile = files[index];
+        } else if (type === 'bg_photo_res') {
+            bgPhotoResFile = files[index];
+        }
     });
-    if (linkFileBgPhoto.error) {
-        return res.json(responseQueries.error({
-            message: linkFileBgPhoto.error
-        }));
+
+    if (bgPhotoFile) {
+        const deleted = await deleteFileS3Function(bg_photo);
+        if (deleted.error) return res.json(responseQueries.error({ message: deleted.message }));
+        const uploaded = await uploadFileS3Function({
+            page: req.body.page,
+            ...bgPhotoFile
+        });
+        if (uploaded.error) return res.json(responseQueries.error({ message: uploaded.message }));
+
+        bg_photo = uploaded.url;
     }
 
-    const linkFileBgPhotoRes = await uploadFileS3Function({
-        page: req.body.page, ...file
-    });
-    if (linkFileBgPhotoRes.error) {
-        return res.json(responseQueries.error({
-            message: linkFileBgPhotoRes.error
-        }));
+    if (bgPhotoResFile) {
+        const deleted = await deleteFileS3Function(bg_photo_res);
+        if (deleted.error) return res.json(responseQueries.error({ message: deleted.message }));
+
+        const uploaded = await uploadFileS3Function({
+            page: req.body.page,
+            ...bgPhotoResFile
+        });
+        if (uploaded.error) return res.json(responseQueries.error({ message: uploaded.message }));
+
+        bg_photo_res = uploaded.url;
     }
 
-    if (!id || !slogan || !company || !linkFileBgPhoto.url || !slogan_two || !linkFileBgPhotoRes.url || !slogan_three) {
+    if (!id || !slogan || !company || !bg_photo || !slogan_two || !bg_photo_res || !slogan_three) {
         return res.json(responseQueries.error({ message: "Datos incompletos" }));
     }
 
@@ -61,7 +68,7 @@ export const updateAdminHome = async (req, res) => {
                 '$.bg_photo_res', ?,
                 '$.slogan_three', ?)
              WHERE id = ?`,
-            [slogan, company, linkFileBgPhoto.url, slogan_two, linkFileBgPhotoRes.url, slogan_three, id]
+            [slogan, company, bg_photo, slogan_two, bg_photo_res, slogan_three, id]
         );
 
         if (update.affectedRows === 0) {
@@ -73,6 +80,7 @@ export const updateAdminHome = async (req, res) => {
         return res.json(responseQueries.error({ message: "Error al actualizar los datos", error }));
     }
 };
+
 
 // Actualizar sección de Nosotros
 export const updateAdminNosotros = async (req, res) => {
