@@ -21,11 +21,6 @@ export const saveAdminCourse = async (req, res) => {
   const data = JSON.parse(req.body.data);
   const { course_title, main_photo, description_course } = data;
 
-  // const deleteFiles3 = await deleteFileS3Function(main_photo);
-  // if (deleteFiles3.error) {
-  //   return res.json(responseQueries.error({ message: deleteFiles3.message }));
-  // }
-
   const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
   if (linkFile.error) {
     return res.json(responseQueries.error({ message: linkFile.error }));
@@ -48,6 +43,48 @@ export const saveAdminCourse = async (req, res) => {
   if (!insert) return res.json(responseQueries.error({ message: "Error al crear curso" }));
 
   return res.json(responseQueries.success({ message: "Curso creado con éxito" }));
+};
+
+// Actualizar un curso
+export const updateAdminCourse = async (req, res) => {
+  const { id } = req.params;
+  const file = req.file;
+  const data = JSON.parse(req.body.data);
+  const { course_title, main_photo, description_course } = data;
+
+  const deleteFiles3 = await deleteFileS3Function(main_photo);
+  if (deleteFiles3.error) {
+    return res.json(responseQueries.error({ message: deleteFiles3.message }));
+  }
+
+  const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
+  if (linkFile.error) {
+    return res.json(responseQueries.error({ message: linkFile.error }));
+  }
+
+  if (!id || !course_title || !linkFile.url || !description_course) {
+    return res.json(responseQueries.error({ message: "Datos incompletos" }));
+  }
+
+  const mainPhotoJSON = JSON.stringify({ bg_photo: linkFile.url });
+
+  try {
+    const conn = await getConnection();
+    const db = variablesDB.academy;
+
+    const update = await conn.query(
+      `UPDATE ${db}.course_user SET course_title = ?, main_photo = ?, description_course = ? WHERE id = ?`,
+      [course_title, mainPhotoJSON, description_course, id]
+    );
+
+    if (update.affectedRows === 0) {
+      return res.json(responseQueries.error({ message: "No se encontró el curso" }));
+    }
+
+    return res.json(responseQueries.success({ message: "Curso actualizado con éxito" }));
+  } catch (error) {
+    return res.json(responseQueries.error({ message: "Error al actualizar curso", error }));
+  }
 };
 
 // Eliminar un curso
@@ -86,33 +123,3 @@ export const deleteAdminCourse = async (req, res) => {
     });
   }
 };
-
-// Actualizar un curso
-// export const updateAdminCourse = async (req, res) => {
-//   const { id } = req.params;
-//   const { course_title, main_photo, description_course } = req.body;
-
-//   if (!id || !course_title || !main_photo || !description_course) {
-//     return res.json(responseQueries.error({ message: "Datos incompletos" }));
-//   }
-
-//   const mainPhotoJSON = JSON.stringify({ bg_photo: main_photo });
-
-//   try {
-//     const conn = await getConnection();
-//     const db = variablesDB.academy;
-
-//     const update = await conn.query(
-//       `UPDATE ${db}.course_user SET course_title = ?, main_photo = ?, description_course = ? WHERE id = ?`,
-//       [course_title, mainPhotoJSON, description_course, id]
-//     );
-
-//     if (update.affectedRows === 0) {
-//       return res.json(responseQueries.error({ message: "No se encontró el curso" }));
-//     }
-
-//     return res.json(responseQueries.success({ message: "Curso actualizado con éxito" }));
-//   } catch (error) {
-//     return res.json(responseQueries.error({ message: "Error al actualizar curso", error }));
-//   }
-// };
