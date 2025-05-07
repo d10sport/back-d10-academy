@@ -110,19 +110,22 @@ export const updateAdminClass = async (req, res) => {
 // Eliminar una clase
 export const deleteAdminClass = async (req, res) => {
     const { id } = req.params;
-    // const data = JSON.parse(req.body.data);
-    // const { class_content } = data;
-
-    // const deleteFiles3 = await deleteFileS3Function(class_content);
-    // if (deleteFiles3.error) {
-    //     return res.json(responseQueries.error({ message: deleteFiles3.message }));
-    // }
+    const { url } = req.body;
 
     if (!id) {
         return res.status(400).json({
             status: 400,
             message: 'El ID es obligatorio'
         });
+    }
+
+    if (!id || !url) {
+        return res.json(responseQueries.error({ message: "Datos incompletos" }));
+    }
+
+    const deleteFiles3 = await deleteFileS3Function(url);
+    if (deleteFiles3.error) {
+        return res.json(responseQueries.error({ message: deleteFiles3.message }));
     }
 
     try {
@@ -139,6 +142,7 @@ export const deleteAdminClass = async (req, res) => {
         }
 
         return res.json({
+            success: true,
             status: 200,
             message: `Contenido #${id} eliminado correctamente`
         });
