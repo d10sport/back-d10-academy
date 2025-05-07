@@ -30,11 +30,6 @@ export const saveAdminClass = async (req, res) => {
         const data = JSON.parse(req.body.data);
         const { id_course, class_title, class_description, class_content } = data;
 
-        // const deleteFiles3 = await deleteFileS3Function(class_content);
-        // if (deleteFiles3.error) {
-        //     return res.json(responseQueries.error({ message: deleteFiles3.message }));
-        // }
-
         const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
         if (linkFile.error) {
             return res.json(responseQueries.error({ message: linkFile.error }));
@@ -70,9 +65,59 @@ export const saveAdminClass = async (req, res) => {
     }
 };
 
+// Actualizar una clase
+export const updateAdminClass = async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
+    const data = JSON.parse(req.body.data);
+    const { class_title, class_description, class_content } = data;
+
+    const deleteFiles3 = await deleteFileS3Function(class_content.video);
+    if (deleteFiles3.error) {
+        return res.json(responseQueries.error({ message: deleteFiles3.message }));
+    }
+
+    const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
+    if (linkFile.error) {
+        return res.json(responseQueries.error({ message: linkFile.error }));
+    }
+
+    if (!id || !class_title || !class_description || !linkFile.url) {
+        return res.json(responseQueries.error({ message: "Datos incompletos" }));
+    }
+
+    const classContentJSON = JSON.stringify({ video: linkFile.url });
+
+    try {
+        const conn = await getConnection();
+        const db = variablesDB.academy;
+
+        const update = await conn.query(
+            `UPDATE ${db}.content_course SET class_title = ?, class_description = ?, class_content = ? WHERE id = ?`,
+            [class_title, class_description, classContentJSON, id]
+        );
+
+        if (update.affectedRows === 0) {
+            return res.json(responseQueries.error({ message: "No se encontró el contenido" }));
+        }
+
+        return res.json(responseQueries.success({ message: "Contenido actualizado con éxito" }));
+    } catch (error) {
+        return res.json(responseQueries.error({ message: "Error al actualizar contenido", error }));
+    }
+};
+
 // Eliminar una clase
 export const deleteAdminClass = async (req, res) => {
     const { id } = req.params;
+    // const data = JSON.parse(req.body.data);
+    // const { class_content } = data;
+
+    // const deleteFiles3 = await deleteFileS3Function(class_content);
+    // if (deleteFiles3.error) {
+    //     return res.json(responseQueries.error({ message: deleteFiles3.message }));
+    // }
+
     if (!id) {
         return res.status(400).json({
             status: 400,
@@ -106,32 +151,4 @@ export const deleteAdminClass = async (req, res) => {
     }
 };
 
-// Actualizar una clase
-// export const updateAdminClass = async (req, res) => {
-//     const { id } = req.params;
-//     const { class_title, class_description, class_content } = req.body;
 
-//     if (!id || !class_title || !class_description || !class_content) {
-//         return res.json(responseQueries.error({ message: "Datos incompletos" }));
-//     }
-
-//     const classContentJSON = JSON.stringify({ video: class_content });
-
-//     try {
-//         const conn = await getConnection();
-//         const db = variablesDB.academy;
-
-//         const update = await conn.query(
-//             `UPDATE ${db}.content_course SET class_title = ?, class_description = ?, class_content = ? WHERE id = ?`,
-//             [class_title, class_description, classContentJSON, id]
-//         );
-
-//         if (update.affectedRows === 0) {
-//             return res.json(responseQueries.error({ message: "No se encontró el contenido" }));
-//         }
-
-//         return res.json(responseQueries.success({ message: "Contenido actualizado con éxito" }));
-//     } catch (error) {
-//         return res.json(responseQueries.error({ message: "Error al actualizar contenido", error }));
-//     }
-// };
