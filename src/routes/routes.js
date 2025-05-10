@@ -16,16 +16,16 @@ import { saveNews, deleteNews, getDataNews } from '../controllers/admin/admin-ne
 import { getAdminAcademy } from '../controllers/admin/admin.controller.js';
 
 // Academy
+import { getSolitudeUsersCoach, getSolitudeUsersClub, approvedSolitude, deniedSolitude, getCategoriesForRegister } from '../controllers/academy/solitud_register.controller.js';
 import { getAllPermissionsAndRole, getPermissionsByIdUser, getPermissionsByRoleAdmin, getPermissionsByRoleUser } from '../controllers/academy/permissions.controller.js';
-import { getSolitudeUsersCoach, getSolitudeUsersClub, approvedSolitude, deniedSolitude } from '../controllers/academy/solitud_register.controller.js';
 import { getClassMenu, getClassContent, getClassComments, saveClassComment } from '../controllers/academy/class.controller.js';
 import { getCoach, searchCoachFilter, registerCoach } from '../controllers/academy/coach.controller.js';
-import { getClub, searchClubFilter, registerClub } from '../controllers/academy/club.controller.js';
-import { getAthletes, registerAthlete } from '../controllers/academy/athletes.controller.js';
 import { updateUserLoginById, getUserInfo } from '../controllers/academy/configuration.controller.js';
+import { getClub, searchClubFilter, registerClub } from '../controllers/academy/club.controller.js';
+import { getAllRoles, getRoleUserByIdUser } from '../controllers/academy/role.controller.js';
+import { getAthletes, registerAthlete } from '../controllers/academy/athletes.controller.js';
 import { validLoginUsersAcademy } from '../controllers/academy/users.controller.js';
 import { getCoursesAcademy } from '../controllers/academy/courses.controller.js';
-import { getAllRoles, getRoleUserByIdUser } from '../controllers/academy/role.controller.js';
 
 // External
 import { sendEmail } from '../lib/api/email.api.js';
@@ -116,6 +116,7 @@ export const routes = () => {
     router.post('/academy/config/user/p/login', AuthorizationVerify, updateUserLoginById);
     router.get('/academy/config/user/g/login/:id_user', AuthorizationVerify, getUserInfo);
     router.get('/academy/user/role/:id_user', AuthorizationVerify, getRoleUserByIdUser);
+    router.get('/academy/user/categories', AuthorizationVerify, getCategoriesForRegister);
 
     //Graphics
     router.get('/academy/g/users-from-club/:id_club', AuthorizationVerify, getUsersFromClub);

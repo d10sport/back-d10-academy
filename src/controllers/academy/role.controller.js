@@ -82,7 +82,7 @@ export async function getRoleUser(id) {
     const pool = await getConnection()
     const db = variablesDB.academy
     try {
-        const response = await pool.query(`SELECT rs.name_role, ru.id_role FROM ${db}.role_user ru
+        const response = await pool.query(`SELECT rs.name_role, ru.id_role, rs.description_role  FROM ${db}.role_user ru
         INNER JOIN ${db}.role_system rs ON ru.id_role = rs.id
         WHERE ru.id_user = ?;`, [id])
         if (response[0].length === 0) {
