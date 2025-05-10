@@ -1,12 +1,12 @@
-import { createSolitudLoginUser, createSolitudeRegisterUser, validateNotRegisterMail } from "./users.controller.js";
+import { saveCategoriesForRegisterAthleteFunction } from "./solitud_register.controller.js";
+import { createSolitudLoginUser, validateNotRegisterMail } from "./users.controller.js";
 import { responseQueries } from "../../common/enum/queries/response.queries.js";
 import { updateLoginUser } from "./solitud_register.controller.js";
 import { variablesDB } from "../../utils/params/const.database.js";
 import { generateToken } from "../../utils/token/handle-token.js";
-import { getIdRole, createRoleUser } from "./role.controller.js";
-import getConnection from "../../database/connection.mysql.js";
 import { sendEmailFunction } from "../../lib/api/email.api.js";
-import { getClubByIdFunction } from "./club.controller.js";
+import getConnection from "../../database/connection.mysql.js";
+import { createRoleUser } from "./role.controller.js";
 
 // Obtener todos los deportistas
 export const getAthletes = async (req, res) => {
@@ -47,11 +47,29 @@ export async function deleteAthleteByIdFunction(id) {
   return responseQueries.success({ data: select[0] });
 }
 
+export async function saveCategoriesAthlete(data, insertLogin) {
+  for (const category of data) {
+    const insertCat = await saveCategoriesForRegisterAthleteFunction({
+      id_athlete: insertLogin,
+      id_sub_category: category.id
+    });
+
+    if (insertCat.error) {
+      return responseQueries.error({ message: insertCat.message });
+    }
+  }
+
+  return responseQueries.success({
+    message: "Registro exitoso",
+    status: 200,
+  });
+}
+
 // Registro de deportista
 export const registerAthlete = async (req, res) => {
   const pool = await getConnection()
   const db = variablesDB.academy
-  const { first_names, last_names, gender, date_birth, country, city, contact, mail, social_networks, academic_level, first_names_family, last_names_family, contact_family } = req.body
+  const { first_names, last_names, gender, date_birth, country, city, contact, mail, social_networks, academic_level, first_names_family, last_names_family, contact_family, categories, role } = req.body
   try {
     const existMail = await validateNotRegisterMail(mail);
     if (existMail.success) {
@@ -59,12 +77,16 @@ export const registerAthlete = async (req, res) => {
     }
     const insertLogin = await createSolitudLoginUser({ email: mail })
     if (insertLogin.success) {
-      const insert = await pool.query(`INSERT INTO ${db}.athlete
-        (id_user, first_names, last_names, gender, date_birth, country, city, contact, mail, social_networks, academic_level, first_names_family, last_names_family, contact_family)
+      const insertAthlete = await pool.query(`
+        INSERT INTO ${db}.athlete (id_user, first_names, last_names, gender, date_birth, country, city, contact, mail, social_networks, academic_level, first_names_family, last_names_family, contact_family)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
         [insertLogin.data.insertId, first_names, last_names, gender, date_birth, country, city, contact, mail, JSON.stringify(social_networks), academic_level, first_names_family, last_names_family, contact_family])
-      if (insert[0].affectedRows === 0) {
+      if (insertAthlete[0].affectedRows === 0) {
         return res.json(responseQueries.error({ message: "Uninserted records" }))
+      }
+      const insertCatCorrect = await saveCategoriesAthlete(categories, insertAthlete[0].insertId);
+      if (insertCatCorrect.error) {
+        return res.json(responseQueries.error({ message: insertCatCorrect.message }))
       }
       let user = {}
       const numberRandom = Math.floor(Math.random() * (9999 - 1000)) + 1000;
@@ -76,14 +98,7 @@ export const registerAthlete = async (req, res) => {
       user.verified_at = 'NULL';
       const updateLogin = await updateLoginUser(user);
       if (updateLogin.success) {
-        const role_id = await getIdRole('athlete');
-        if (role_id.error) {
-          return res.json(responseQueries.error({ message: role_id.message }))
-        }
-        if (role_id.data.length === 0){
-          return res.json(responseQueries.error({ message: "Role not found" }))
-        }
-        const insertRole = await createRoleUser({ id_user: user.id_user, id_role: role_id.data[0].id })
+        const insertRole = await createRoleUser({ id_user: user.id_user, id_role: role.role_id })
         if (insertRole.error) {
           return res.json(responseQueries.error({ message: insertRole.message }))
         }
@@ -94,10 +109,10 @@ export const registerAthlete = async (req, res) => {
         const tokenPassword = await generateToken({
           sub: user.id_user,
           password: user.password
-      })
+        })
         const tokenRole = await generateToken({
           sub: user.id_user,
-          role: 'athlete'
+          role_user: role
         })
         const sendMail = await sendEmailFunction({ name: user.name, username: tokenUsername, password: tokenPassword, email: user.email, type: 'approved', role_user: tokenRole })
         return res.json(responseQueries.success({ message: "Success approvade", data: sendMail }));
