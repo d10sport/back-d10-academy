@@ -105,7 +105,7 @@ export const registerCoach = async (req, res) => {
         })
         const tokenRole = await generateToken({
           sub: loginClub.data[0].id_user,
-          role: role.description_role
+          role_user: role
         })
         const sendMailUser = await sendEmailFunction({ name: nameComplete, username: undefined, password: undefined, email: username, type: 'register_user_coach', role_user: role.name_role })
         const sendMailClub = await sendEmailFunction({ name: { email: loginClub.data[0].username, name: club.data[0].name_club, username: tokenUsername, password: tokenPassword, role_user: tokenRole }, username: nameComplete, password: undefined, email: username, type: 'register_club', role_user: role.name_role })

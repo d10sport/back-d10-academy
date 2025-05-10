@@ -208,21 +208,21 @@ export const getCategoriesForRegister = async (req, res) => {
   return res.json(responseQueries.success({ message: "Success", data: select[0] }));
 }
 
-export async function saveCategoriesForRegisterFunction(data) {
-  const { id_sub_category, id_user } = req.body;
+export async function saveCategoriesForRegisterAthleteFunction(data) {
+  const { id_athlete, id_sub_category } = data;
   const conn = await getConnection();
   const db = variablesDB.academy;
   const select = await conn.query(`
     INSERT INTO ${db}.categories_athlete
-    (id, id_athlete, id_category)
-    VALUES(?, ?, ?);
-  `, [id_sub_category, id_user]);
-  if (!select) return res.json(responseQueries.error({ message: "Error query save categories users" }));
-  return res.json(responseQueries.success({ message: "Success", data: select[0] }));
+    (id_athlete, id_category)
+    VALUES(?, ?);
+  `, [id_athlete, id_sub_category]);
+  if (!select) return responseQueries.error({ message: "Error query save categories users" });
+  return responseQueries.success({ message: "Success", data: select[0] });
 }
 
 export async function saveCategoriesAvailablesClubFunction(data) {
-  const { id_sub_category, id_club } = data;
+  const { id_club, id_sub_category } = data;
   const conn = await getConnection();
   const db = variablesDB.academy;
   const select = await conn.query(`
