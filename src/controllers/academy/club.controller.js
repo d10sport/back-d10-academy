@@ -1,4 +1,5 @@
 import { createSolitudLoginUser, createSolitudeRegisterUser, validateNotRegisterMail, searchLoginUserById } from "./users.controller.js";
+import { saveCategoriesAvailablesClubFunction } from "./solitud_register.controller.js";
 import { responseQueries } from "../../common/enum/queries/response.queries.js";
 import { searchAdminAvailable } from "../admin/admin.controller.js";
 import { variablesDB } from "../../utils/params/const.database.js";
@@ -63,11 +64,29 @@ export const searchClubFilter = async (req, res) => {
   return res.json(responseQueries.success({ data: select[0] }));
 }
 
+export async function saveCategoriesClub(data, insertLogin) {
+  for (const category of data) {
+    const insertCat = await saveCategoriesAvailablesClubFunction({
+      id_club: insertLogin,
+      id_sub_category: category.id
+    });
+
+    if (insertCat.error) {
+      return responseQueries.error({ message: insertCat.message });
+    }
+  }
+
+  return responseQueries.success({
+    message: "Registro exitoso",
+    status: 200,
+  });
+}
+
 // Registro de club
 export const registerClub = async (req, res) => {
   const pool = await getConnection()
   const db = variablesDB.academy
-  const { name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, categories, local_league, national_tournament, u13_u15_u17_u20, number_coaches, assistants, interns, venues, sites, role } = req.body
+  const { name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, categories, local_league, national_tournament, number_coaches, assistants, interns, venues, sites, role } = req.body
   try {
     const existMail = await validateNotRegisterMail(mail);
     if (existMail.success) {
@@ -75,12 +94,17 @@ export const registerClub = async (req, res) => {
     }
     const insertLogin = await createSolitudLoginUser({ email: mail })
     if (insertLogin.success) {
-      const insert = await pool.query(`INSERT INTO ${db}.club
-      (id_user, name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, categories, local_league, national_tournament, u13_u15_u17_u20, number_coaches, assistants, interns, venues, sites)
-      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [insertLogin.data.insertId, name_club, date_founded, country, city, president, comet, contact, mail, JSON.stringify(social_networks), website, number_athletes, categories, local_league, national_tournament, u13_u15_u17_u20, number_coaches, assistants, interns, venues, sites]);
-      if (insert[0].affectedRows === 0) {
+      const insertClub = await pool.query(`
+        INSERT INTO ${db}.club
+        (id_user, name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, local_league, national_tournament, number_coaches, assistants, interns, venues, sites)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [insertLogin.data.insertId, name_club, date_founded, country, city, president, comet, contact, mail, JSON.stringify(social_networks), website, number_athletes, local_league, national_tournament, number_coaches, assistants, interns, venues, sites]);
+      if (insertClub[0].affectedRows === 0) {
         return res.json(responseQueries.error({ message: "Registros no insertados" }))
+      }
+      const insertCatCorrect = await saveCategoriesClub(categories, insertClub[0].insertId);
+      if (insertCatCorrect.error) {
+        return res.json(responseQueries.error({ message: insertCatCorrect.message }))
       }
       const insertRole = await createRoleUser({ id_user: insertLogin.data.insertId, id_role: role.role_id })
       if (insertRole.error) {
@@ -116,7 +140,7 @@ export const registerClub = async (req, res) => {
         return res.json(responseQueries.success({
           message: "Registro exitoso",
           status: 200,
-          data: [{ athleteId: insert[0].insertId, loginId: insertLogin.data.insertId, solitudeId: insertSolitudeRegister.data.insertId, sendMailUserClub: sendMailUserClub, sendMailAdmin: sendMailAdmin }]
+          data: [{ clubId: insertClub[0].insertId, loginId: insertLogin.data.insertId, solitudeId: insertSolitudeRegister.data.insertId, sendMailUserClub: sendMailUserClub, sendMailAdmin: sendMailAdmin }]
         }))
       }
       return res.json(responseQueries.error({ message: insertSolitudeRegister.message }))
