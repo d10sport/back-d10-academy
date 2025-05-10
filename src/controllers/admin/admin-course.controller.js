@@ -90,11 +90,34 @@ export const updateAdminCourse = async (req, res) => {
 // Eliminar un curso
 export const deleteAdminCourse = async (req, res) => {
   const { id } = req.params;
+  const { url, urlClassVideos } = req.body;
   if (!id) {
     return res.status(400).json({
       status: 400,
       message: 'El ID es obligatorio'
     });
+  }
+
+  const videoUrls = urlClassVideos.map(item => item.video_url);
+
+  if (!id || !url || !videoUrls) {
+    return res.json(responseQueries.error({ message: "Datos incompletos" }));
+  }
+
+  for (var i = 0; i < videoUrls.length; i++) {
+    const iteration = videoUrls[i]
+    const deleteMultipleFiles3 = await deleteFileS3Function(iteration);
+    if (deleteMultipleFiles3.error) {
+      return res.json(
+        responseQueries.error({ message: deleteMultipleFiles3.message })
+      );
+    }
+  }
+
+
+  const deleteFiles3 = await deleteFileS3Function(url);
+  if (deleteFiles3.error) {
+    return res.json(responseQueries.error({ message: deleteFiles3.message }));
   }
 
   try {
@@ -111,6 +134,7 @@ export const deleteAdminCourse = async (req, res) => {
     }
 
     return res.json({
+      success: true,
       status: 200,
       message: (`Curso #${id} eliminado correctamente`)
     });
