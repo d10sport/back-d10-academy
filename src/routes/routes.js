@@ -9,8 +9,8 @@ import { updateAdminAboutUsConocenos, updateAdminAboutUsFundador, updateAdminAbo
 import { getUsersFromClub, getAllUsers, getAllRegistersVerifiedByDate, getAllCountUsersWithAdmin, getAllCountUsersWithoutAdmin } from '../controllers/academy/graphics.controller.js'
 import { updateAdminHome, updateAdminNosotros, updateAdminComercial, updateAdminNews, updateAdminAcademia, updateAdminAliados, getDataHome } from '../controllers/admin/admin-home.controller.js'
 import { updateAdminServicesOne, updateAdminServicesTwo, updateAdminServicesThree, getDataServices } from '../controllers/admin/admin-services.controller.js'
-import { getAdminCourseAcademy, saveAdminCourse, deleteAdminCourse } from '../controllers/admin/admin-course.controller.js';
-import { getAdminClass, saveAdminClass, deleteAdminClass } from '../controllers/admin/admin-class.controller.js';
+import { getAdminCourseAcademy, saveAdminCourse, deleteAdminCourse, updateAdminCourse } from '../controllers/admin/admin-course.controller.js';
+import { getAdminClass, saveAdminClass, deleteAdminClass, updateAdminClass } from '../controllers/admin/admin-class.controller.js';
 import { saveGalleryImage, deleteGalleryImage, getDataGallery } from '../controllers/admin/admin-gallery.controller.js';
 import { saveNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
 import { getAdminAcademy } from '../controllers/admin/admin.controller.js';
@@ -80,9 +80,11 @@ export const routes = () => {
     // Admin Academy
     router.get('/academy/g/admin-course', AuthorizationVerify, getAdminCourseAcademy);
     router.post('/academy/i/add-course', AuthorizationVerify, upload.single('file'), handleMulterError, saveAdminCourse);
+    router.put('/academy/u/update-course/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminCourse);
     router.delete('/academy/d/delete-course/:id', AuthorizationVerify, deleteAdminCourse);
     router.get('/academy/g/admin-class', AuthorizationVerify, getAdminClass);
     router.post('/academy/i/add-class', AuthorizationVerify, upload.single('file'), handleMulterError, saveAdminClass);
+    router.put('/academy/u/update-class/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminClass);
     router.delete('/academy/d/delete-class/:id', AuthorizationVerify, deleteAdminClass);
 
     // Academy
