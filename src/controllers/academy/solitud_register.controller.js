@@ -191,8 +191,45 @@ export const getSolitudeUsersClub = async (req, res) => {
     INNER JOIN ${db}.solitude_register sr ON sr.id_user = lu.id_user
   	INNER JOIN ${db}.role_user ru ON ru.id_user = sr.id_user
     INNER JOIN ${db}.role_system rs ON ru.id_role = rs.id
-    WHERE sr.verify = 0 and rs.id = 1;;
+    WHERE sr.verify = 0 and rs.id = 1;
   `);
   if (!select) return res.json(responseQueries.error({ message: "Error query get solitude users" }));
   return res.json(responseQueries.success({ message: "Success", data: select[0] }));
+}
+
+//Obtener todas las categorias para el registro
+export const getCategoriesForRegister = async (req, res) => {
+  const conn = await getConnection();
+  const db = variablesDB.academy;
+  const select = await conn.query(`
+    SELECT * FROM ${db}.sub_categories
+  `);
+  if (!select) return res.json(responseQueries.error({ message: "Error query get categories users" }));
+  return res.json(responseQueries.success({ message: "Success", data: select[0] }));
+}
+
+export async function saveCategoriesForRegisterAthleteFunction(data) {
+  const { id_athlete, id_sub_category } = data;
+  const conn = await getConnection();
+  const db = variablesDB.academy;
+  const select = await conn.query(`
+    INSERT INTO ${db}.categories_athlete
+    (id_athlete, id_category)
+    VALUES(?, ?);
+  `, [id_athlete, id_sub_category]);
+  if (!select) return responseQueries.error({ message: "Error query save categories users" });
+  return responseQueries.success({ message: "Success", data: select[0] });
+}
+
+export async function saveCategoriesAvailablesClubFunction(data) {
+  const { id_club, id_sub_category } = data;
+  const conn = await getConnection();
+  const db = variablesDB.academy;
+  const select = await conn.query(`
+    INSERT INTO ${db}.categories_club_available
+    (id_club, id_category)
+    VALUES(?, ?);
+  `, [id_club, id_sub_category]);
+  if (!select) return responseQueries.error({ message: "Error query save solitude users" });
+  return responseQueries.success({ message: "Success", data: select[0] });
 }

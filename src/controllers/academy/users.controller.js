@@ -209,7 +209,7 @@ export const validLoginUsersAcademy = async (req, res) => {
         res.json(responseJWT.error({ message: role.message, status: role.status, token: null, user: null }))
         return
     }
-    if (role.data[0].id_role !== req.body.role_user.role_id) {
+    if (role.data[0].id_role !== req.body.role_user.role_id && role.data[0].name_role !== req.body.role_user) {
         res.json(responseJWT.error({ message: 'Role invalido', status: 200, token: null, user: null }))
         return
     }
