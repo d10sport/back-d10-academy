@@ -30,26 +30,27 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use('/d10/server/v1', routes());
 
-//Conect database
-const connDb = await getConnection();
-if (!connDb) {
-    console.log("\n*****************************");
-    console.log("Error conectando la base de datos");
-    console.log("*****************************\n");
-}
-else {
-    console.log("\n*****************************");
-    console.log("Base de datos conectada correctamente");
-    console.log("*****************************\n");
-}
-
 // API Working
 app.get('/', (req, res) => {
     res.json('Working');
 })
 
-app.listen(PORT, () => {
-    console.log("*****************************");
-    console.log(`Servicio iniciado en http://localhost:${PORT}/d10/server/v1`);
-    console.log("*****************************\n");
+app.listen(PORT, async () => {
+    // Conectarse a la base de datos
+    const connDb = await getConnection();
+    if (!connDb) {
+        console.log("\n*****************************");
+        console.log("Error conectando la base de datos");
+        console.log("*****************************\n");
+        process.exit(1); // Opcional: detener el servidor si no se conecta
+    }
+    else {
+        console.log("\n*****************************");
+        console.log("Base de datos conectada correctamente");
+        console.log("*****************************\n");
+
+        console.log("*****************************");
+        console.log(`Servicio iniciado en http://localhost:${PORT}/d10/server/v1`);
+        console.log("*****************************\n");
+    }
 });
