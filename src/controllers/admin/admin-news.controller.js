@@ -55,10 +55,15 @@ export const saveNews = async (req, res) => {
 export const deleteNews = async (req, res) => {
     try {
         const { id } = req.params;
-        const { index } = req.body;
+        const { index, url } = req.body;
 
-        if (!id || index === undefined) {
+        if (!id || index === undefined || !url) {
             return res.json(responseQueries.error({ message: "Datos incompletos" }));
+        }
+
+        const deleteFiles3 = await deleteFileS3Function(url);
+        if (deleteFiles3.error) {
+            return res.json(responseQueries.error({ message: deleteFiles3.message }));
         }
 
         const conn = await getConnection();
