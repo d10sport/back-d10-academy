@@ -86,7 +86,7 @@ export async function saveCategoriesClub(data, insertLogin) {
 export const registerClub = async (req, res) => {
   const pool = await getConnection()
   const db = variablesDB.academy
-  const { name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, categories, local_league, national_tournament, number_coaches, assistants, interns, venues, sites, role } = req.body
+  const { name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, categories, local_league, national_tournament, number_coaches, assistants, venues, role } = req.body
   try {
     const existMail = await validateNotRegisterMail(mail);
     if (existMail.success) {
@@ -96,9 +96,9 @@ export const registerClub = async (req, res) => {
     if (insertLogin.success) {
       const insertClub = await pool.query(`
         INSERT INTO ${db}.club
-        (id_user, name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, local_league, national_tournament, number_coaches, assistants, interns, venues, sites)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [insertLogin.data.insertId, name_club, date_founded, country, city, president, comet, contact, mail, JSON.stringify(social_networks), website, number_athletes, local_league, national_tournament, number_coaches, assistants, interns, venues, sites]);
+        (id_user, name_club, date_founded, country, city, president, comet, contact, mail, social_networks, website, number_athletes, local_league, national_tournament, number_coaches, assistants, venues)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [insertLogin.data.insertId, name_club, date_founded, country, city, president, comet, contact, mail, JSON.stringify(social_networks), website, number_athletes, local_league, national_tournament, number_coaches, assistants, venues]);
       if (insertClub[0].affectedRows === 0) {
         return res.json(responseQueries.error({ message: "Registros no insertados" }))
       }
