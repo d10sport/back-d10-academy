@@ -1,20 +1,26 @@
 import connectionMysql from "../config/database.js";
 
-// Obtener respuesta de la conexion a la base de datos
+let pool = null;
+
 const getConnection = async () => {
   try {
-    const pool = await connectionMysql();
+    if (pool) return pool; // Reusar la conexión existente
+
+    pool = await connectionMysql(); // Solo se ejecuta una vez
     const ping = await pool.ping();
     if (!ping) {
+      pool = null;
       return false;
     }
     return pool;
   } catch (error) {
     console.error("\n*****************************");
     console.error("Error conectando la base de datos");
+    console.error(error);
     console.error("*****************************\n");
+    pool = null;
     return false;
   }
-}
+};
 
 export default getConnection;
