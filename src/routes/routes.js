@@ -10,7 +10,7 @@ import { getUsersFromClub, getAllUsers, getAllRegistersVerifiedByDate, getAllCou
 import { updateAdminHome, updateAdminNosotros, updateAdminComercial, updateAdminNews, updateAdminAcademia, updateAdminAliados, getDataHome } from '../controllers/admin/admin-home.controller.js'
 import { updateAdminServicesOne, updateAdminServicesTwo, updateAdminServicesThree, getDataServices } from '../controllers/admin/admin-services.controller.js'
 import { getAdminCourseAcademy, saveAdminCourse, deleteAdminCourse, updateAdminCourse } from '../controllers/admin/admin-course.controller.js';
-import { getAdminClass, saveAdminClass, deleteAdminClass, updateAdminClass } from '../controllers/admin/admin-class.controller.js';
+import { getAdminClass, getAdminClassVideos, saveAdminClass, deleteAdminClass, updateAdminClass } from '../controllers/admin/admin-class.controller.js';
 import { saveGalleryImage, deleteGalleryImage, getDataGallery } from '../controllers/admin/admin-gallery.controller.js';
 import { saveNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
 import { getAdminAcademy } from '../controllers/admin/admin.controller.js';
@@ -83,6 +83,7 @@ export const routes = () => {
     router.put('/academy/u/update-course/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminCourse);
     router.delete('/academy/d/delete-course/:id', AuthorizationVerify, deleteAdminCourse);
     router.get('/academy/g/admin-class', AuthorizationVerify, getAdminClass);
+    router.get('/academy/g/admin-class-videos/:id_course', AuthorizationVerify, getAdminClassVideos);
     router.post('/academy/i/add-class', AuthorizationVerify, upload.single('file'), handleMulterError, saveAdminClass);
     router.put('/academy/u/update-class/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminClass);
     router.delete('/academy/d/delete-class/:id', AuthorizationVerify, deleteAdminClass);
