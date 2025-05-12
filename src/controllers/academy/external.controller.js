@@ -15,7 +15,7 @@ import {
   geonamesApiGetCitiesColombian
 } from "../../lib/api/geonames.api.js";
 import { responseQueries } from "../../common/enum/queries/response.queries.js";
-
+import axios from "axios";
 
 // Obtener Paises RestCountries
 export const getAllCountriesRestCountries = async (req, res) => {
@@ -93,4 +93,24 @@ export const getCitiesOneCountryIDAndDepartmentIDRapidapi = async (req, res) => 
   const cities = await rapidapiGetCitiesByDeparmentIDAndCountryID(countryID, departmentID);
   if (!cities) return res.json(responseQueries.error({ message: "Error" }));
   return res.json(responseQueries.success({ message: "Success", data: cities }));
+}
+
+//Obtener imagen de instagram con proxy
+export const getImageWithProxy = async (req, res) => {
+  try {
+    const imageUrl = decodeURIComponent(req.query.url);
+
+    const response = await axios.get(imageUrl, {
+      responseType: "arraybuffer", // 👈 Importante para que devuelva un buffer
+    });
+
+    // Obtener tipo de contenido (ej: image/jpeg)
+    const contentType = response.headers["content-type"];
+
+    res.set("Content-Type", contentType);
+    res.send(response.data); // 👈 Enviar el buffer directamente
+  } catch (error) {
+    console.error("Error al obtener imagen:", error.message);
+    res.status(500).send("Error al obtener imagen");
+  }
 }

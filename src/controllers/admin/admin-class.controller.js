@@ -16,6 +16,18 @@ export const getAdminClass = async (req, res) => {
     return res.json(select[0]);
 }
 
+// Obtener todos los videos de una clase
+export const getAdminClassVideos = async (req, res) => {
+    const { id_course } = req.params;
+    const conn = await getConnection();
+    const db = variablesDB.academy;
+    const select = await conn.query(`SELECT JSON_UNQUOTE(JSON_EXTRACT(class_content, '$.video')) AS video_url FROM ${db}.content_course WHERE id_course = ?`, [id_course]);
+    if (!select) return res.json({
+        status: 500,
+        message: 'Error obteniendo las clases',
+    });
+    return res.json(select[0]);
+}
 
 // Guardar una clase
 export const saveAdminClass = async (req, res) => {

@@ -10,7 +10,7 @@ import { getUsersFromClub, getAllUsers, getAllRegistersVerifiedByDate, getAllCou
 import { updateAdminHome, updateAdminNosotros, updateAdminComercial, updateAdminNews, updateAdminAcademia, updateAdminAliados, getDataHome } from '../controllers/admin/admin-home.controller.js'
 import { updateAdminServicesOne, updateAdminServicesTwo, updateAdminServicesThree, getDataServices } from '../controllers/admin/admin-services.controller.js'
 import { getAdminCourseAcademy, saveAdminCourse, deleteAdminCourse, updateAdminCourse } from '../controllers/admin/admin-course.controller.js';
-import { getAdminClass, saveAdminClass, deleteAdminClass, updateAdminClass } from '../controllers/admin/admin-class.controller.js';
+import { getAdminClass, getAdminClassVideos, saveAdminClass, deleteAdminClass, updateAdminClass } from '../controllers/admin/admin-class.controller.js';
 import { saveGalleryImage, deleteGalleryImage, getDataGallery } from '../controllers/admin/admin-gallery.controller.js';
 import { saveNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
 import { getAdminAcademy } from '../controllers/admin/admin.controller.js';
@@ -39,7 +39,8 @@ import {
     getCitiesOneCountryIDGeoNames,
     getCountriesRapidapi,
     getDepartmentColombianRapidapi,
-    getCitiesOneCountryIDAndDepartmentIDRapidapi
+    getCitiesOneCountryIDAndDepartmentIDRapidapi,
+    getImageWithProxy
 } from '../controllers/academy/external.controller.js';
 import { uploadFileS3, deleteFileS3, upload, readFileS3, handleMulterError } from '../lib/s3/s3.js';
 
@@ -70,7 +71,6 @@ export const routes = () => {
     router.put('/landing/d/delete-gallery/:id', AuthorizationVerify, deleteGalleryImage)
     router.put('/landing/i/save-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveNews)
     router.put('/landing/d/delete-news-admin/:id', AuthorizationVerify, deleteNews)
-
     router.get('/landing/g/aboutus', AuthorizationVerify, getDataAboutUs);
     router.get('/landing/g/gallery', AuthorizationVerify, getDataGallery)
     router.get('/landing/g/home', AuthorizationVerify, getDataHome);
@@ -83,6 +83,7 @@ export const routes = () => {
     router.put('/academy/u/update-course/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminCourse);
     router.delete('/academy/d/delete-course/:id', AuthorizationVerify, deleteAdminCourse);
     router.get('/academy/g/admin-class', AuthorizationVerify, getAdminClass);
+    router.get('/academy/g/admin-class-videos/:id_course', AuthorizationVerify, getAdminClassVideos);
     router.post('/academy/i/add-class', AuthorizationVerify, upload.single('file'), handleMulterError, saveAdminClass);
     router.put('/academy/u/update-class/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminClass);
     router.delete('/academy/d/delete-class/:id', AuthorizationVerify, deleteAdminClass);
@@ -136,6 +137,7 @@ export const routes = () => {
     router.get('/external/g/rapi/countries/', AuthorizationVerify, getCountriesRapidapi);
     router.get('/external/g/rapi/depart/col/', AuthorizationVerify, getDepartmentColombianRapidapi);
     router.get('/external/g/rapi/cities/depart/:departmentID/:countryID', AuthorizationVerify, getCitiesOneCountryIDAndDepartmentIDRapidapi);
+    router.get('/external/g/instagram/proxy-img', getImageWithProxy);
 
     //S3
     router.post('/external/p/s3/', AuthorizationVerify, upload.single('file'), handleMulterError, uploadFileS3);
