@@ -39,7 +39,8 @@ import {
     getCitiesOneCountryIDGeoNames,
     getCountriesRapidapi,
     getDepartmentColombianRapidapi,
-    getCitiesOneCountryIDAndDepartmentIDRapidapi
+    getCitiesOneCountryIDAndDepartmentIDRapidapi,
+    getImageWithProxy
 } from '../controllers/academy/external.controller.js';
 import { uploadFileS3, deleteFileS3, upload, readFileS3, handleMulterError } from '../lib/s3/s3.js';
 
@@ -137,6 +138,7 @@ export const routes = () => {
     router.get('/external/g/rapi/countries/', AuthorizationVerify, getCountriesRapidapi);
     router.get('/external/g/rapi/depart/col/', AuthorizationVerify, getDepartmentColombianRapidapi);
     router.get('/external/g/rapi/cities/depart/:departmentID/:countryID', AuthorizationVerify, getCitiesOneCountryIDAndDepartmentIDRapidapi);
+    router.get('/external/g/instagram/proxy-img', getImageWithProxy);
 
     //S3
     router.post('/external/p/s3/', AuthorizationVerify, upload.single('file'), handleMulterError, uploadFileS3);
