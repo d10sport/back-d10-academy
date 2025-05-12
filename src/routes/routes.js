@@ -71,7 +71,6 @@ export const routes = () => {
     router.put('/landing/d/delete-gallery/:id', AuthorizationVerify, deleteGalleryImage)
     router.put('/landing/i/save-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveNews)
     router.put('/landing/d/delete-news-admin/:id', AuthorizationVerify, deleteNews)
-
     router.get('/landing/g/aboutus', AuthorizationVerify, getDataAboutUs);
     router.get('/landing/g/gallery', AuthorizationVerify, getDataGallery)
     router.get('/landing/g/home', AuthorizationVerify, getDataHome);
