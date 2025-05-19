@@ -17,7 +17,13 @@ export const getClassContent = async (req, res) => {
     const { id } = req.query;
     const conn = await getConnection();
     const db = variablesDB.academy;
-    const select = await conn.query(`SELECT * FROM ${db}.content_course WHERE id = ?`, [id]);
+
+    const select = await conn.query(`SELECT cc.id, cc.id_course, cc.class_title, cc.class_description, cc.class_content, cc.created_at, co.id AS id_comments
+    FROM ${db}.content_course cc 
+    INNER JOIN ${db}.class_course co 
+    ON co.id_content = cc.id
+    WHERE cc.id = ?`, [id]);
+
     if (!select) return res.json(responseQueries.error({ message: "Error obteniendo el contenido de las clases" }));
     return res.json(responseQueries.success({ data: select[0] }));
 }
