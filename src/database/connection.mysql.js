@@ -16,8 +16,10 @@ const getConnection = async () => {
   } catch (error) {
     console.error("\n*****************************");
     console.error("Error conectando la base de datos");
-    console.error(error);
     console.error("*****************************\n");
+    console.log("");
+    console.error(error);
+    console.log("");
     pool = null;
     return false;
   }
