@@ -54,7 +54,7 @@ const router = express();
 export const routes = () => {
     // Admin Landing
     router.put('/landing/u/update-home/:id', AuthorizationVerify, upload.array('file'), handleMulterError, updateAdminHome);
-    router.put('/landing/u/update-nosotros/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminNosotros);
+    router.put('/landing/u/update-nosotros/:id', AuthorizationVerify, updateAdminNosotros);
     router.put('/landing/u/update-comercial/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminComercial);
     router.put('/landing/u/update-news/:id', AuthorizationVerify, updateAdminNews);
     router.put('/landing/u/update-academia/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminAcademia);
