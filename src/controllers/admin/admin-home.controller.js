@@ -85,11 +85,45 @@ export const updateAdminHome = async (req, res) => {
 // Actualizar sección de Nosotros
 export const updateAdminNosotros = async (req, res) => {
     const { id } = req.params;
+    const data = JSON.parse(req.body.data);
+    const { title, description } = data;
+
+    if (!id || !title || !description) {
+        return res.json(responseQueries.error({ message: "Datos incompletos" }));
+    }
+
+    try {
+        const conn = await getConnection();
+        const db = variablesDB.landing;
+
+        const update = await conn.query(
+            `UPDATE ${db}.parametersHome
+             SET section_two = JSON_SET(section_two,
+                '$.title', ?,
+                '$.bg_photo', ?,
+                '$.description', ?)
+             WHERE id = ?`,
+            [title, description, id]
+        );
+
+        if (update.affectedRows === 0) {
+            return res.json(responseQueries.error({ message: "No se encontró el registro" }));
+        }
+
+        return res.json(responseQueries.success({ message: "Datos actualizados con éxito" }));
+    } catch (error) {
+        return res.json(responseQueries.error({ message: "Error al actualizar los datos", error }));
+    }
+};
+
+// Actualizar sección de Comercial
+export const updateAdminComercial = async (req, res) => {
+    const { id } = req.params;
     const file = req.file;
     const data = JSON.parse(req.body.data);
-    const { title, bg_photo, description } = data;
+    const { title, video, description } = data;
 
-    const deleteFiles3 = await deleteFileS3Function(bg_photo);
+    const deleteFiles3 = await deleteFileS3Function(video);
     if (deleteFiles3.error) {
         return res.json(responseQueries.error({ message: deleteFiles3.message }));
     }
@@ -109,9 +143,9 @@ export const updateAdminNosotros = async (req, res) => {
 
         const update = await conn.query(
             `UPDATE ${db}.parametersHome
-             SET section_two = JSON_SET(section_two,
+             SET section_three = JSON_SET(section_three,
                 '$.title', ?,
-                '$.bg_photo', ?,
+                '$.video', ?,
                 '$.description', ?)
              WHERE id = ?`,
             [title, linkFile.url, description, id]
@@ -127,56 +161,12 @@ export const updateAdminNosotros = async (req, res) => {
     }
 };
 
-
-// Actualizar sección de Comercial
-export const updateAdminComercial = async (req, res) => {
-    const { id } = req.params;
-    const file = req.file;
-    const data = JSON.parse(req.body.data);
-    const { video } = data;
-
-    const deleteFiles3 = await deleteFileS3Function(video);
-    if (deleteFiles3.error) {
-        return res.json(responseQueries.error({ message: deleteFiles3.message }));
-    }
-
-    const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
-    if (linkFile.error) {
-        return res.json(responseQueries.error({ message: linkFile.error }));
-    }
-
-    if (!id || !linkFile.url) {
-        return res.json(responseQueries.error({ message: "Datos incompletos" }));
-    }
-
-    try {
-        const conn = await getConnection();
-        const db = variablesDB.landing;
-
-        const update = await conn.query(
-            `UPDATE ${db}.parametersHome
-             SET section_three = JSON_SET(section_three,
-                '$.video', ?)
-             WHERE id = ?`,
-            [linkFile.url, id]
-        );
-
-        if (update.affectedRows === 0) {
-            return res.json(responseQueries.error({ message: "No se encontró el registro" }));
-        }
-
-        return res.json(responseQueries.success({ message: "Datos actualizados con éxito" }));
-    } catch (error) {
-        return res.json(responseQueries.error({ message: "Error al actualizar los datos", error }));
-    }
-};
-
 // Actualizar sección de Noticias
 export const updateAdminNews = async (req, res) => {
     const { id } = req.params;
-    const { h1, title, description } = req.body;
+    const { label, title1, title2, title3, description } = req.body;
 
-    if (!id || !h1 || !title || !description) {
+    if (!id || !label || !title1 || !title2 || !title3 || !description) {
         return res.json(responseQueries.error({ message: "Datos incompletos" }));
     }
 
@@ -187,11 +177,13 @@ export const updateAdminNews = async (req, res) => {
         const update = await conn.query(
             `UPDATE ${db}.parametersHome
              SET section_four = JSON_SET(section_four,
-                '$.news.h1', ?,
-                '$.news.title', ?,
+                '$.news.label', ?,
+                '$.news.title1', ?,
+                '$.news.title2', ?,
+                '$.news.title3', ?,
                 '$.news.description', ?)
              WHERE id = ?`,
-            [h1, title, description, id]
+            [label, title1, title2, title3, description, id]
         );
 
         if (update.affectedRows === 0) {
@@ -209,9 +201,9 @@ export const updateAdminAcademia = async (req, res) => {
     const { id } = req.params;
     const file = req.file;
     const data = JSON.parse(req.body.data);
-    const { link, title_1, title_2, bg_photo, text_link } = data;
+    const { link, logo, title, description } = data;
 
-    const deleteFiles3 = await deleteFileS3Function(bg_photo);
+    const deleteFiles3 = await deleteFileS3Function(logo);
     if (deleteFiles3.error) {
         return res.json(responseQueries.error({ message: deleteFiles3.message }));
     }
@@ -221,7 +213,7 @@ export const updateAdminAcademia = async (req, res) => {
         return res.json(responseQueries.error({ message: linkFile.error }));
     }
 
-    if (!id || !link || !title_1 || !title_2 || !linkFile.url || !text_link) {
+    if (!id || !link || !linkFile.url || !title || !description) {
         return res.json(responseQueries.error({ message: "Datos incompletos" }));
     }
 
@@ -233,12 +225,11 @@ export const updateAdminAcademia = async (req, res) => {
             `UPDATE ${db}.parametersHome
              SET section_five = JSON_SET(section_five,
                 '$.link', ?,
-                '$.title_1', ?,
-                '$.title_2', ?,
-                '$.bg_photo', ?,
-                '$.text_link', ?)
+                '$.logo', ?,
+                '$.title', ?,
+                '$.description', ?)
              WHERE id = ?`,
-            [link, title_1, title_2, linkFile.url, text_link, id]
+            [link, linkFile.url, title, description, id]
         );
 
         if (update.affectedRows === 0) {
