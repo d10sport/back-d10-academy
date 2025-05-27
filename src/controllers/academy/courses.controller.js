@@ -5,11 +5,13 @@ import { variablesDB } from "../../utils/params/const.database.js";
 export const getCoursesAcademy = async (req, res) => {
   const conn = await getConnection();
   const db = variablesDB.academy;
-  const select = await conn.query(`SELECT * FROM ${db}.course_user`);
+  const select = await conn.query(`
+    SELECT 
+    id, course_title, main_photo, description_course, DATE_FORMAT(created_at, '%Y-%m-%d') as created_at
+    FROM ${db}.course_user`);
   if (!select) return res.json({
     status: 500,
     message: 'Error obteniendo los cursos',
   });
   return res.json(select[0]);
 }
-
