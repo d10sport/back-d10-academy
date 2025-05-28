@@ -201,7 +201,7 @@ export const updateAdminAcademia = async (req, res) => {
     const { id } = req.params;
     const file = req.file;
     const data = JSON.parse(req.body.data);
-    const { link, logo, title, description } = data;
+    const { logo, title, description } = data;
 
     const deleteFiles3 = await deleteFileS3Function(logo);
     if (deleteFiles3.error) {
@@ -213,7 +213,7 @@ export const updateAdminAcademia = async (req, res) => {
         return res.json(responseQueries.error({ message: linkFile.error }));
     }
 
-    if (!id || !link || !linkFile.url || !title || !description) {
+    if (!id || !linkFile.url || !title || !description) {
         return res.json(responseQueries.error({ message: "Datos incompletos" }));
     }
 
@@ -224,12 +224,11 @@ export const updateAdminAcademia = async (req, res) => {
         const update = await conn.query(
             `UPDATE ${db}.parametersHome
              SET section_five = JSON_SET(section_five,
-                '$.link', ?,
                 '$.logo', ?,
                 '$.title', ?,
                 '$.description', ?)
              WHERE id = ?`,
-            [link, linkFile.url, title, description, id]
+            [linkFile.url, title, description, id]
         );
 
         if (update.affectedRows === 0) {
