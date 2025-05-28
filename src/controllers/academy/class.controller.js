@@ -7,7 +7,7 @@ export const getClassMenu = async (req, res) => {
     const { id_course } = req.query;
     const conn = await getConnection();
     const db = variablesDB.academy;
-    const select = await conn.query(`SELECT co.id_content AS class_id, cc.class_title, cc.class_description, cc.class_content FROM ${db}.content_course cc INNER JOIN ${db}.class_course co ON co.id_content = cc.id WHERE cc.id_course = ?`, [id_course]);
+    const select = await conn.query(`SELECT co.id_content AS class_id, cc.class_title, cc.class_description, cc.class_content, DATE_FORMAT(cc.created_at, '%Y-%m-%d') as created_at FROM ${db}.content_course cc INNER JOIN ${db}.class_course co ON co.id_content = cc.id WHERE cc.id_course = ?`, [id_course]);
     if (!select) return res.json(responseQueries.error({ message: "Error obteniendo las clases" }));
     return res.json(responseQueries.success({ data: select[0] }));
 }
