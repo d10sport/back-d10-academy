@@ -3,39 +3,6 @@ import { variablesDB } from "../../utils/params/const.database.js";
 import { responseQueries } from "../../common/enum/queries/response.queries.js";
 import { deleteFileS3Function, uploadFileS3Function } from "../../lib/s3/s3.js";
 
-// Actualizar sección de Conócenos
-export const updateAdminAboutUsConocenos = async (req, res) => {
-    const { id } = req.params;
-    const { title, description } = req.body;
-
-    if (!id || !title || !description) {
-        return res.json(responseQueries.error({ message: "Datos incompletos" }));
-    }
-
-    try {
-        const conn = await getConnection();
-        const db = variablesDB.landing;
-
-        const update = await conn.query(
-            `UPDATE ${db}.parametersAboutUs
-             SET section_one = JSON_SET(section_one,
-                '$.title', ?,
-                '$.description', ?)
-             WHERE id = ?`,
-            [title, description, id]
-        );
-
-        if (update.affectedRows === 0) {
-            return res.json(responseQueries.error({ message: "No se encontró el registro" }));
-        }
-
-        return res.json(responseQueries.success({ message: "Datos actualizados con éxito" }));
-    } catch (error) {
-        return res.json(responseQueries.error({ message: "Error al actualizar los datos", error }));
-    }
-};
-
-
 // Actualizar sección de Fundador
 export const updateAdminAboutUsFundador = async (req, res) => {
     const { id } = req.params;
