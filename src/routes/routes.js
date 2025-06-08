@@ -12,7 +12,7 @@ import { updateAdminServicesInfo, updateAdminServicesOne, updateAdminServicesTwo
 import { getAdminCourseAcademy, saveAdminCourse, deleteAdminCourse, updateAdminCourse } from '../controllers/admin/admin-course.controller.js';
 import { getAdminClass, getAdminClassVideos, saveAdminClass, deleteAdminClass, updateAdminClass } from '../controllers/admin/admin-class.controller.js';
 import { saveGalleryImage, deleteGalleryImage, getDataGallery } from '../controllers/admin/admin-gallery.controller.js';
-import { saveNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
+import { saveNews, updateNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
 import { getAdminAcademy } from '../controllers/admin/admin.controller.js';
 
 // Academy
@@ -70,6 +70,7 @@ export const routes = () => {
     router.put('/landing/i/save-gallery/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveGalleryImage)
     router.put('/landing/d/delete-gallery/:id', AuthorizationVerify, deleteGalleryImage)
     router.post('/landing/i/save-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveNews)
+    router.put('/landing/u/update-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateNews)
     router.delete('/landing/d/delete-news-admin/:id', AuthorizationVerify, deleteNews)
     router.get('/landing/g/aboutus', AuthorizationVerify, getDataAboutUs);
     router.get('/landing/g/gallery', AuthorizationVerify, getDataGallery)
