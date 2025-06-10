@@ -6,58 +6,83 @@ import { deleteFileS3Function, uploadFileS3Function } from "../../lib/s3/s3.js";
 
 // Guardar noticias
 export const saveNews = async (req, res) => {
-    const { id } = req.params;
     const file = req.file;
     const data = JSON.parse(req.body.data);
-    const { date, image, title, description } = data;
+    const { title, description, image, date, category_id } = data;
 
-    const linkFile = await uploadFileS3Function({
-        page: req.body.page, ...file
-    });
+    const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
     if (linkFile.error) {
-        return res.json(responseQueries.error({
-            message: linkFile.error
-        }));
+        return res.json(responseQueries.error({ message: linkFile.error }));
     }
 
-    if (!id || !date || !linkFile.url || !title || !description) {
+    if (!title || !description || !linkFile.url || !date || !category_id) {
         return res.json(responseQueries.error({ message: "Datos incompletos" }));
     }
 
-    try {
-        const conn = await getConnection();
-        const db = variablesDB.landing;
+    const conn = await getConnection();
+    const db = variablesDB.landing;
 
-        const updateQuery = `
-            UPDATE ${db}.parametersNews
-            SET section_one = JSON_SET(
-                section_one,
-                CONCAT('$.news.new', JSON_LENGTH(section_one->'$.news') + 1),
-                JSON_OBJECT('date', ?, 'image', ?, 'title', ?, 'description', ?)
-            )
-            WHERE id = ?;
-        `;
+    const insert = await conn.query(
+        `INSERT INTO ${db}.news (title, description, image, date, category_id)
+        VALUES (?, ?, ?, ?, ?)`,
+        [title, description, linkFile.url, date, category_id]
+    );
 
-        const [result] = await conn.query(updateQuery, [date, linkFile.url, title, description, id]);
+    if (!insert) return res.json(responseQueries.error({ message: "Error al crear curso" }));
 
-        if (result.affectedRows === 0) {
-            return res.json(responseQueries.error({ message: "No se encontró la sección o no se actualizó" }));
+    return res.json(responseQueries.success({ message: "Curso creado con éxito" }));
+};
+
+// Guardar noticias
+export const updateNews = async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
+    const data = JSON.parse(req.body.data);
+    const { title, description, image, date, category_id } = data;
+
+    if (file != undefined) {
+        const deleteFiles3 = await deleteFileS3Function(image);
+        if (deleteFiles3.error) {
+            return res.json(responseQueries.error({ message: deleteFiles3.message }));
         }
 
-        return res.json(responseQueries.success({ message: "Noticia agregada correctamente" }));
-    } catch (error) {
-        console.error("Error al guardar la noticia:", error);
-        return res.json(responseQueries.error({ message: "Error interno del servidor" }));
+        const linkFile = await uploadFileS3Function({ page: req.body.page, ...file });
+        if (linkFile.error) {
+            return res.json(responseQueries.error({ message: linkFile.error }));
+        }
+
+        var linkImage = linkFile.url
+
+    } else {
+        var linkImage = image
     }
+
+    if (!id || !title || !description || !linkImage || !date || !category_id) {
+        return res.json(responseQueries.error({ message: "Datos incompletos" }));
+    }
+
+    const conn = await getConnection();
+    const db = variablesDB.landing;
+
+    const insert = await conn.query(`
+        UPDATE ${db}.news
+        SET title = ?, description = ?, image = ?, date = ?, category_id = ?
+        WHERE id = ?;`,
+        [title, description, linkImage, date, category_id, id]
+    );
+
+    if (!insert) return res.json(responseQueries.error({ message: "Error al crear curso" }));
+
+    return res.json(responseQueries.success({ message: "Curso creado con éxito" }));
 };
 
 // Eliminar noticias
 export const deleteNews = async (req, res) => {
     try {
         const { id } = req.params;
-        const { index, url } = req.body;
+        const { url } = req.body;
 
-        if (!id || index === undefined || !url) {
+        if (!id || !url) {
             return res.json(responseQueries.error({ message: "Datos incompletos" }));
         }
 
@@ -69,17 +94,12 @@ export const deleteNews = async (req, res) => {
         const conn = await getConnection();
         const db = variablesDB.landing;
 
-        const deleteQuery = `
-            UPDATE ${db}.parametersNews
-            SET section_one = JSON_REMOVE(section_one, CONCAT('$.news.new', ?))
-            WHERE id = ?;
-        `;
+        const deleteQuery = await conn.query(
+            `DELETE FROM ${db}.news WHERE id = ?;`,
+            [id]
+        );
 
-        const [result] = await conn.query(deleteQuery, [index, id]);
-
-        if (result.affectedRows === 0) {
-            return res.json(responseQueries.error({ message: "No se encontró la noticia o el índice no es válido" }));
-        }
+        if (!deleteQuery) return res.json(responseQueries.error({ message: "Error al eliminar noticia" }));
 
         return res.json(responseQueries.success({ message: "Noticia eliminada correctamente" }));
     } catch (error) {
@@ -93,8 +113,8 @@ export const getDataNews = async (req, res) => {
     const conn = await getConnection();
     const db = variablesDB.landing;
     const query = `
-      SELECT id, section_one
-      FROM ${db}.parametersNews`;
+      SELECT id, title, description, image, DATE_FORMAT(date, '%Y-%m-%d') as date, category_id
+      FROM ${db}.news`;
     const select = await conn.query(query);
     if (!select) return res.json({
         status: 500,

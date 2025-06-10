@@ -5,14 +5,14 @@ import { AuthorizationVerify } from '../middlewares/authorization.js';
 import { ConexionVerify } from '../middlewares/connection.js';
 
 // Admin Landing
-import { updateAdminAboutUsConocenos, updateAdminAboutUsFundador, updateAdminAboutUsObjetivos, updateAdminAboutUsMision, updateAdminAboutUsVision, getDataAboutUs } from '../controllers/admin/admin-aboutus.controller.js';
+import { updateAdminAboutUsFundador, updateAdminAboutUsObjetivos, updateAdminAboutUsMision, updateAdminAboutUsVision, getDataAboutUs } from '../controllers/admin/admin-aboutus.controller.js';
 import { getUsersFromClub, getAllUsers, getAllRegistersVerifiedByDate, getAllCountUsersWithAdmin, getAllCountUsersWithoutAdmin } from '../controllers/academy/graphics.controller.js'
 import { updateAdminHome, updateAdminNosotros, updateAdminComercial, updateAdminNews, updateAdminAcademia, updateAdminAliados, getDataHome } from '../controllers/admin/admin-home.controller.js'
-import { updateAdminServicesOne, updateAdminServicesTwo, updateAdminServicesThree, getDataServices } from '../controllers/admin/admin-services.controller.js'
+import { updateAdminServicesInfo, updateAdminServicesOne, updateAdminServicesTwo, updateAdminServicesThree, getDataServices } from '../controllers/admin/admin-services.controller.js'
 import { getAdminCourseAcademy, saveAdminCourse, deleteAdminCourse, updateAdminCourse } from '../controllers/admin/admin-course.controller.js';
 import { getAdminClass, getAdminClassVideos, saveAdminClass, deleteAdminClass, updateAdminClass } from '../controllers/admin/admin-class.controller.js';
 import { saveGalleryImage, deleteGalleryImage, getDataGallery } from '../controllers/admin/admin-gallery.controller.js';
-import { saveNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
+import { saveNews, updateNews, deleteNews, getDataNews } from '../controllers/admin/admin-news.controller.js';
 import { getAdminAcademy } from '../controllers/admin/admin.controller.js';
 
 // Academy
@@ -59,18 +59,19 @@ export const routes = () => {
     router.put('/landing/u/update-news/:id', AuthorizationVerify, updateAdminNews);
     router.put('/landing/u/update-academia/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminAcademia);
     router.put('/landing/u/update-aliados/:id', AuthorizationVerify, updateAdminAliados);
+    router.put('/landing/u/update-services-info/:id', AuthorizationVerify, updateAdminServicesInfo);
     router.put('/landing/u/update-services-one/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminServicesOne);
     router.put('/landing/u/update-services-two/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminServicesTwo);
     router.put('/landing/u/update-services-three/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminServicesThree);
-    router.put('/landing/u/update-aboutus-conocenos/:id', AuthorizationVerify, updateAdminAboutUsConocenos);
     router.put('/landing/u/update-aboutus-fundador/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminAboutUsFundador);
     router.put('/landing/u/update-aboutus-objetivos/:id', AuthorizationVerify, updateAdminAboutUsObjetivos);
     router.put('/landing/u/update-aboutus-mision/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminAboutUsMision);
     router.put('/landing/u/update-aboutus-vision/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateAdminAboutUsVision);
     router.put('/landing/i/save-gallery/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveGalleryImage)
     router.put('/landing/d/delete-gallery/:id', AuthorizationVerify, deleteGalleryImage)
-    router.put('/landing/i/save-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveNews)
-    router.put('/landing/d/delete-news-admin/:id', AuthorizationVerify, deleteNews)
+    router.post('/landing/i/save-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, saveNews)
+    router.put('/landing/u/update-news-admin/:id', AuthorizationVerify, upload.single('file'), handleMulterError, updateNews)
+    router.delete('/landing/d/delete-news-admin/:id', AuthorizationVerify, deleteNews)
     router.get('/landing/g/aboutus', AuthorizationVerify, getDataAboutUs);
     router.get('/landing/g/gallery', AuthorizationVerify, getDataGallery)
     router.get('/landing/g/home', AuthorizationVerify, getDataHome);
