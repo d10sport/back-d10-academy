@@ -94,10 +94,10 @@ export const htmlTemplateClub = (club, name, email, rol, token) => {
               </ul>
               <p>
                 Recuerda que, si confirmas que el usuario <b>SÍ</b> pertenece al club,
-                Sele dara acceso a la plataform y esto permitirá redirigir al usuario
-                al siguiente paso. En caso de que determines que el usuario <b>NO</b>
-                corresponde al club, ka solicitud sera denegada y se le notificara
-                al usuario para finalizar el proceso.
+                se le dará acceso a la plataforma, y esto permitirá redirigir al
+                usuario al siguiente paso. En caso de que determines que el usuario
+                <b>NO</b> pertenece al club, la solicitud será denegada y se le
+                notificará para finalizar el proceso.
               </p>
               <div>
                 <a href="https://academia.d10mas.com/#/club/solitudes?CwcfFzgQ50HM=${token}" class="button"

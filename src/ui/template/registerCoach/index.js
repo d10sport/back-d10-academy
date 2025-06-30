@@ -82,7 +82,7 @@ export const htmlTemplateRegisterCoach = (name) => {
               <p class="text__email-approve">
                 ¡Felicitaciones! Nos complace informarte que tu registro fue realizado
                 correctamente. Ahora debes esperar que tu club complete la solicitud y
-                seras completamente bienvenido a nuestro sitio web. Una vez esto se
+                seras BIENVENIDO a nuestro sitio web. Una vez esto se
                 haga correctamente se te avisara nuevamente por correo. ¡Quédate
                 atento!
               </p>
