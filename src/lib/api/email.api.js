@@ -38,7 +38,7 @@ async function mailApproved(name, username, password, email, role_user) {
         const my = await transporter.sendMail({
             from: `D10+ Academy <${user_}>`,
             to: `"${email}"`,
-            subject: "Solicitud aprobada ⚽😁",
+            subject: "Solicitud aprobada ⚽",
             html: htmlTemplateApproved(name, usernameDecoded.username, passwordDecoded.password, roleDecoded.role, tokenCode),
         });
 
@@ -63,7 +63,7 @@ async function mailRegisterUserCoach(name, email) {
         const my = await transporter.sendMail({
             from: `D10+ Academy <${user_}>`,
             to: `"${email}"`,
-            subject: "Registro realizado ⚽😉",
+            subject: "Registro realizado ⚽",
             html: htmlTemplateRegisterCoach(name)
         });
 
@@ -88,7 +88,7 @@ async function mailRegisterUserClub(name, email) {
         const my = await transporter.sendMail({
             from: `D10+ Academy <${user_}>`,
             to: `"${email}"`,
-            subject: "Registro realizado ⚽😉",
+            subject: "Registro realizado ⚽",
             html: htmlTemplateRegisterClub(name)
         });
 
@@ -118,7 +118,7 @@ async function mailRegisterAdmin(admin, name, email, rol) {
         const my = await transporter.sendMail({
             from: `D10+ Academy <${user_}>`,
             to: `"${admin.email}"`,
-            subject: "Nuevo registro solicitado ⚽😉",
+            subject: "Nuevo registro solicitado ⚽",
             html: htmlTemplateAdmin(admin.name, name, email, rol, tokenCode),
         });
 
@@ -148,7 +148,7 @@ async function mailRegisterClub(club, name, email, rol) {
         const my = await transporter.sendMail({
             from: `D10+ Academy <${user_}>`,
             to: `"${club.email}"`,
-            subject: "Nuevo registro solicitado ⚽😉",
+            subject: "Nuevo registro solicitado ⚽",
             html: htmlTemplateClub(club.name, name, email, rol, tokenCode),
         });
 
